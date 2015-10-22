@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using RawLauncherWPF.Xml;
 using RawXmlLauncherGenerator.Xml;
 
 namespace RawXmlLauncherGenerator
@@ -42,6 +42,34 @@ namespace RawXmlLauncherGenerator
             }
             if (cbt_genType.SelectedIndex == 0)
                 GenerateCheckXml();
+            if (cbt_genType.SelectedIndex == 1)
+                GenerteRestoreXml();
+        }
+
+        private void GenerteRestoreXml()
+        {
+            var fileContainer = new FileContainer
+            {
+                Version = tb_version.Text,
+                Files = new List<FileContainerFile>()
+            };
+            Parallel.ForEach(
+                Directory.EnumerateFiles(Directory.GetCurrentDirectory() + @"\Data\XML", "*", SearchOption.AllDirectories),
+                x => AddFile(fileContainer.Files, x, TargetType.Ai));
+            Parallel.ForEach(
+                Directory.EnumerateFiles(Directory.GetCurrentDirectory() + @"\Data\Scripts", "*", SearchOption.AllDirectories),
+                x => AddFile(fileContainer.Files, x, TargetType.Ai));
+            Parallel.ForEach(
+                Directory.EnumerateFiles(Directory.GetCurrentDirectory() + @"\Data\CustomMaps", "*", SearchOption.AllDirectories),
+                x => AddFile(fileContainer.Files, x, TargetType.Ai));
+
+            Parallel.ForEach(
+                Directory.EnumerateFiles(Directory.GetCurrentDirectory() + @"\Mods\Republic_at_War", "*", SearchOption.AllDirectories),
+                x => AddFile(fileContainer.Files, x, TargetType.Mod));
+
+            var xmlString = fileContainer.Serialize();
+            var doc = XDocument.Parse(xmlString);
+            File.WriteAllText(tb_outDir.Text + @"\\RestoreModFileContainer.xml", doc.ToString());
         }
 
         private bool PreCheckCurrentDir()
@@ -58,39 +86,72 @@ namespace RawXmlLauncherGenerator
 
         private void GenerateCheckXml()
         {
-            var t = new FileContainer
+            var fileContainer = new FileContainer
             {
                 Version = tb_version.Text,
                 Folders = new List<FileContainerFolder>()
             };
 
+            AddFolder(fileContainer.Folders, Directory.GetCurrentDirectory() + @"\Data\XML", TargetType.Ai);
+            Parallel.ForEach(
+                Directory.EnumerateDirectories(Directory.GetCurrentDirectory() + @"\Data\XML", "*",
+                    SearchOption.AllDirectories), x => AddFolder(fileContainer.Folders, x, TargetType.Ai));
 
-            AddFolder(t.Folders, Directory.GetCurrentDirectory() + @"\Data\XML");
-            foreach (var dir in Directory.EnumerateDirectories(Directory.GetCurrentDirectory() + @"\Data\XML", "*", SearchOption.AllDirectories))
+            AddFolder(fileContainer.Folders, Directory.GetCurrentDirectory() + @"\Data\Scripts", TargetType.Ai);
+            Parallel.ForEach(
+                Directory.EnumerateDirectories(Directory.GetCurrentDirectory() + @"\Data\Scripts", "*",
+                    SearchOption.AllDirectories), x => AddFolder(fileContainer.Folders, x, TargetType.Ai));
+
+            AddFolder(fileContainer.Folders, Directory.GetCurrentDirectory() + @"\Data\CustomMaps", TargetType.Ai);
+            Parallel.ForEach(
+                Directory.EnumerateDirectories(Directory.GetCurrentDirectory() + @"\Data\CustomMaps", "*",
+                    SearchOption.AllDirectories), x => AddFolder(fileContainer.Folders, x, TargetType.Ai));
+
+
+            if (string.IsNullOrEmpty(tb_customModDir.Text))
             {
-                AddFolder(t.Folders, dir);
+                AddFolder(fileContainer.Folders, Directory.GetCurrentDirectory() + @"\Mods\Republic_At_War\Data", TargetType.Mod, @"\Mods\Republic_At_War\Data");
+                Parallel.ForEach(
+                    Directory.EnumerateDirectories(Directory.GetCurrentDirectory() + @"\Mods\Republic_At_War\Data", "*",
+                        SearchOption.AllDirectories), x => AddFolder(fileContainer.Folders, x, TargetType.Mod, @"\Mods\Republic_At_War\Data"));
+            }
+            else
+            {
+                AddFolder(fileContainer.Folders, Directory.GetCurrentDirectory() + @"\Mods\" + tb_customModDir.Text + @"\Data", TargetType.Mod, @"\Mods\" + tb_customModDir.Text + @"\Data");
+                Parallel.ForEach(
+                    Directory.EnumerateDirectories(Directory.GetCurrentDirectory() + @"\Mods\" + tb_customModDir.Text + @"\Data", "*", SearchOption.AllDirectories), x => AddFolder(fileContainer.Folders, x, TargetType.Mod, @"\Mods\" + tb_customModDir.Text + @"\Data"));
             }
 
-            // TODO: Add Scripts and Other 
-
-            var xmlString = t.Serialize();
+            var xmlString = fileContainer.Serialize();
             var doc = XDocument.Parse(xmlString);
-            File.WriteAllText(tb_outDir.Text + @"\\Test.xml", doc.ToString());
-            MessageBox.Show(new XmlValidator(tb_outDir.Text + @"\\FileContainer.xsd").Validate(tb_outDir.Text + @"\\Test.xml").ToString());
+            File.WriteAllText(tb_outDir.Text + @"\\CheckModFileContainer.xml", doc.ToString());
         }
 
 
-        private void AddFolder(List<FileContainerFolder> list, string directory)
+        private void AddFolder(List<FileContainerFolder> list, string directory, TargetType type, string cutoffPath = null)
         {
             var folderItem = new FileContainerFolder
             {
                 Count = Directory.GetFiles(directory).Length.ToString(),
                 Hash = Hash.FolderHash.CheckHashDir(directory),
-                TargetPath = directory.Replace(Directory.GetCurrentDirectory(), string.Empty) + @"\",
-                TargetType = TargetType.Ai
+                TargetPath = directory.Replace(Directory.GetCurrentDirectory() + cutoffPath, string.Empty) + @"\",
+                TargetType = type
             };
             list.Add(folderItem);
 
+        }
+
+        private void AddFile(List<FileContainerFile> files, string s, TargetType type, string cutoffPath = null)
+        {
+            var fileItem = new FileContainerFile
+            {
+                Name = Path.GetFileName(s),
+                Hash = Hash.FileHash.CheckHashFile(s),
+                TargetPath = s.Replace(Directory.GetCurrentDirectory() + cutoffPath, string.Empty) + @"\",
+                TargetType = type,
+                SourcePath = @"\" + tb_version.Text + s.Replace(Directory.GetCurrentDirectory() + cutoffPath, string.Empty) + @"\",
+            };
+            files.Add(fileItem);
         }
 
         private void btn_selDir_Click(object sender, EventArgs e)

@@ -38,6 +38,8 @@
             this.btn_generate = new System.Windows.Forms.Button();
             this.btn_selDir = new System.Windows.Forms.Button();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.label5 = new System.Windows.Forms.Label();
+            this.tb_customModDir = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // label1
@@ -72,22 +74,23 @@
             this.cbt_genType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbt_genType.FormattingEnabled = true;
             this.cbt_genType.Items.AddRange(new object[] {
-            "Check"});
-            this.cbt_genType.Location = new System.Drawing.Point(100, 6);
+            "Check",
+            "Restore/Update"});
+            this.cbt_genType.Location = new System.Drawing.Point(132, 6);
             this.cbt_genType.Name = "cbt_genType";
             this.cbt_genType.Size = new System.Drawing.Size(121, 21);
             this.cbt_genType.TabIndex = 3;
             // 
             // tb_version
             // 
-            this.tb_version.Location = new System.Drawing.Point(100, 33);
+            this.tb_version.Location = new System.Drawing.Point(132, 33);
             this.tb_version.Name = "tb_version";
             this.tb_version.Size = new System.Drawing.Size(100, 20);
             this.tb_version.TabIndex = 4;
             // 
             // tb_outDir
             // 
-            this.tb_outDir.Location = new System.Drawing.Point(100, 59);
+            this.tb_outDir.Location = new System.Drawing.Point(132, 59);
             this.tb_outDir.Name = "tb_outDir";
             this.tb_outDir.Size = new System.Drawing.Size(192, 20);
             this.tb_outDir.TabIndex = 6;
@@ -103,7 +106,7 @@
             // 
             // btn_generate
             // 
-            this.btn_generate.Location = new System.Drawing.Point(100, 85);
+            this.btn_generate.Location = new System.Drawing.Point(132, 85);
             this.btn_generate.Name = "btn_generate";
             this.btn_generate.Size = new System.Drawing.Size(121, 44);
             this.btn_generate.TabIndex = 8;
@@ -113,7 +116,7 @@
             // 
             // btn_selDir
             // 
-            this.btn_selDir.Location = new System.Drawing.Point(298, 59);
+            this.btn_selDir.Location = new System.Drawing.Point(330, 59);
             this.btn_selDir.Name = "btn_selDir";
             this.btn_selDir.Size = new System.Drawing.Size(75, 23);
             this.btn_selDir.TabIndex = 9;
@@ -121,11 +124,29 @@
             this.btn_selDir.UseVisualStyleBackColor = true;
             this.btn_selDir.Click += new System.EventHandler(this.btn_selDir_Click);
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(12, 138);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(114, 13);
+            this.label5.TabIndex = 10;
+            this.label5.Text = "Custom Mod Directory:";
+            // 
+            // tb_customModDir
+            // 
+            this.tb_customModDir.Location = new System.Drawing.Point(132, 135);
+            this.tb_customModDir.Name = "tb_customModDir";
+            this.tb_customModDir.Size = new System.Drawing.Size(100, 20);
+            this.tb_customModDir.TabIndex = 11;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(400, 245);
+            this.ClientSize = new System.Drawing.Size(442, 245);
+            this.Controls.Add(this.tb_customModDir);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.btn_selDir);
             this.Controls.Add(this.btn_generate);
             this.Controls.Add(this.label4);
@@ -154,6 +175,8 @@
         private System.Windows.Forms.Button btn_generate;
         private System.Windows.Forms.Button btn_selDir;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox tb_customModDir;
     }
 }
 

@@ -35,7 +35,9 @@ namespace RawXmlLauncherGenerator.Hash
             }
             File.Copy(a + @"\tempHash.txt", a + @"\Hash.txt", true);
             File.Delete(a + @"\tempHash.txt");
-            return CheckHashFile(a + @"\Hash.txt");
+            var hash =  CheckHashFile(a + @"\Hash.txt");
+            File.Delete(a + @"\Hash.txt");
+            return hash;
         }
     }
 }
