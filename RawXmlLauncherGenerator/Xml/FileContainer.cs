@@ -28,7 +28,6 @@ namespace RawXmlLauncherGenerator.Xml
     [XmlType(AnonymousType = true)]
     public class FileContainerFile
     {
-        private FileType _fileContentTypeField;
         private string _hashField;
         private string _nameField;
         private string _sourcePathField;
@@ -41,14 +40,6 @@ namespace RawXmlLauncherGenerator.Xml
         {
             get { return _nameField; }
             set { _nameField = value; }
-        }
-
-        /// <remarks/>
-        [XmlElement(Form = System.Xml.Schema.XmlSchemaForm.Unqualified)]
-        public FileType FileContentType
-        {
-            get { return _fileContentTypeField; }
-            set { _fileContentTypeField = value; }
         }
 
         /// <remarks/>
@@ -82,21 +73,6 @@ namespace RawXmlLauncherGenerator.Xml
             get { return _sourcePathField; }
             set { _sourcePathField = value; }
         }
-    }
-
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCode("xsd", "4.6.81.0")]
-    [System.Serializable]
-    public enum FileType
-    {
-        /// <remarks/>
-        Hash,
-
-        /// <remarks/>
-        Count,
-
-        /// <remarks/>
-        Delete,
     }
 
     /// <remarks/>

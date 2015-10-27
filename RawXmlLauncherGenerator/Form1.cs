@@ -63,9 +63,16 @@ namespace RawXmlLauncherGenerator
                 Directory.EnumerateFiles(Directory.GetCurrentDirectory() + @"\Data\CustomMaps", "*", SearchOption.AllDirectories),
                 x => AddFile(fileContainer.Files, x, TargetType.Ai));
 
-            Parallel.ForEach(
-                Directory.EnumerateFiles(Directory.GetCurrentDirectory() + @"\Mods\Republic_at_War", "*", SearchOption.AllDirectories),
-                x => AddFile(fileContainer.Files, x, TargetType.Mod));
+            if (string.IsNullOrEmpty(tb_customModDir.Text))
+                Parallel.ForEach(
+                    Directory.EnumerateFiles(Directory.GetCurrentDirectory() + @"\Mods\Republic_at_War", "*",
+                        SearchOption.AllDirectories),
+                    x => AddFile(fileContainer.Files, x, TargetType.Mod, @"\Mods\Republic_at_War"));
+            else
+                Parallel.ForEach(
+                    Directory.EnumerateFiles(Directory.GetCurrentDirectory() + @"\Mods\" + tb_customModDir.Text, "*",
+                        SearchOption.AllDirectories),
+                    x => AddFile(fileContainer.Files, x, TargetType.Mod, @"\Mods\" + tb_customModDir.Text));
 
             var xmlString = fileContainer.Serialize();
             var doc = XDocument.Parse(xmlString);
@@ -110,16 +117,16 @@ namespace RawXmlLauncherGenerator
 
             if (string.IsNullOrEmpty(tb_customModDir.Text))
             {
-                AddFolder(fileContainer.Folders, Directory.GetCurrentDirectory() + @"\Mods\Republic_At_War\Data", TargetType.Mod, @"\Mods\Republic_At_War\Data");
+                AddFolder(fileContainer.Folders, Directory.GetCurrentDirectory() + @"\Mods\Republic_At_War\", TargetType.Mod, @"\Mods\Republic_At_War");
                 Parallel.ForEach(
-                    Directory.EnumerateDirectories(Directory.GetCurrentDirectory() + @"\Mods\Republic_At_War\Data", "*",
-                        SearchOption.AllDirectories), x => AddFolder(fileContainer.Folders, x, TargetType.Mod, @"\Mods\Republic_At_War\Data"));
+                    Directory.EnumerateDirectories(Directory.GetCurrentDirectory() + @"\Mods\Republic_At_War\", "*",
+                        SearchOption.AllDirectories), x => AddFolder(fileContainer.Folders, x, TargetType.Mod, @"\Mods\Republic_At_War"));
             }
             else
             {
-                AddFolder(fileContainer.Folders, Directory.GetCurrentDirectory() + @"\Mods\" + tb_customModDir.Text + @"\Data", TargetType.Mod, @"\Mods\" + tb_customModDir.Text + @"\Data");
+                AddFolder(fileContainer.Folders, Directory.GetCurrentDirectory() + @"\Mods\" + tb_customModDir.Text, TargetType.Mod, @"\Mods\" + tb_customModDir.Text);
                 Parallel.ForEach(
-                    Directory.EnumerateDirectories(Directory.GetCurrentDirectory() + @"\Mods\" + tb_customModDir.Text + @"\Data", "*", SearchOption.AllDirectories), x => AddFolder(fileContainer.Folders, x, TargetType.Mod, @"\Mods\" + tb_customModDir.Text + @"\Data"));
+                    Directory.EnumerateDirectories(Directory.GetCurrentDirectory() + @"\Mods\" + tb_customModDir.Text, "*", SearchOption.AllDirectories), x => AddFolder(fileContainer.Folders, x, TargetType.Mod, @"\Mods\" + tb_customModDir.Text));
             }
 
             var xmlString = fileContainer.Serialize();
