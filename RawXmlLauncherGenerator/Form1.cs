@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using RawLauncherWPF.Xml;
 using RawXmlLauncherGenerator.Xml;
 
 namespace RawXmlLauncherGenerator
@@ -48,6 +49,7 @@ namespace RawXmlLauncherGenerator
 
         private void GenerteRestoreXml()
         {
+            tb_customModDir.Text = "Republic_at_War";
             var fileContainer = new FileContainer
             {
                 Version = tb_version.Text,
@@ -73,6 +75,71 @@ namespace RawXmlLauncherGenerator
                     Directory.EnumerateFiles(Directory.GetCurrentDirectory() + @"\Mods\" + tb_customModDir.Text, "*",
                         SearchOption.AllDirectories),
                     x => AddFile(fileContainer.Files, x, TargetType.Mod, @"\Mods\" + tb_customModDir.Text));
+
+            //Now replace dublicate files from previous versions
+            if (File.Exists(tb_prevFile.Text))
+            {
+                var xmlObjectParser = new XmlObjectParser<FileContainer>(tb_prevFile.Text);
+                var preVersionData = xmlObjectParser.Parse();
+
+                List<FileContainerFile> newFiles =  new List<FileContainerFile>();
+
+                foreach (var file in fileContainer.Files)
+                {
+                    FileContainerFile prefFile =
+                        preVersionData.Files.Find(
+                            f => f.Name == file.Name && file.TargetPath.Contains(f.TargetPath) && f.Hash == file.Hash);
+                    if (prefFile != null)
+                        file.SourcePath = prefFile.SourcePath;
+                    else
+                       newFiles.Add(new FileContainerFile {Name = file.Name, TargetPath = file.TargetPath, TargetType = file.TargetType});
+                }
+                var xmlNewString = newFiles.Serialize();
+                var newDoc = XDocument.Parse(xmlNewString);
+                File.WriteAllText(tb_outDir.Text + @"\\NewFiles.xml", newDoc.ToString());
+
+                if (!Directory.Exists(tb_outDir.Text + "\\New Files\\"))
+                    Directory.CreateDirectory(tb_outDir.Text + "\\New Files\\");
+
+                if (checkBox1.Checked)
+                    foreach (var newFile in newFiles)
+                    {
+                        try
+                        {
+                            if (newFile.TargetType == TargetType.Ai)
+                            {
+                                var i = Directory.GetCurrentDirectory();
+                                var s = i + newFile.TargetPath;
+                                s = s.TrimEnd('\\');
+                                s = Path.GetFullPath(s);
+                                var t = tb_outDir.Text + "\\New Files\\AI" + newFile.TargetPath;
+                                t = t.TrimEnd('\\');
+                                if (!Directory.Exists(new FileInfo(t).DirectoryName))
+                                    Directory.CreateDirectory(new FileInfo(t).DirectoryName);
+                                t = t.TrimEnd('\\');
+                                File.Copy(s, t);
+                            }
+
+                            else
+                            {
+                                var s = Directory.GetCurrentDirectory() + @"\Mods\" + tb_customModDir.Text + newFile.TargetPath;
+                                s = s.TrimEnd('\\');
+                                s = Path.GetFullPath(s);
+                                var t = tb_outDir.Text + "\\New Files" + newFile.TargetPath;
+                                t = t.TrimEnd('\\');
+                                if (!Directory.Exists(new FileInfo(t).DirectoryName))
+                                    Directory.CreateDirectory(new FileInfo(t).DirectoryName);
+                                t = t.TrimEnd('\\');
+                                File.Copy(s, t);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                        }
+                    }
+
+            }
+
 
             var xmlString = fileContainer.Serialize();
             var doc = XDocument.Parse(xmlString);
@@ -166,6 +233,24 @@ namespace RawXmlLauncherGenerator
             if (folderBrowserDialog1.ShowDialog(this) == DialogResult.OK)
             {
                 tb_outDir.Text = folderBrowserDialog1.SelectedPath;
+            }
+        }
+
+        private void cbt_genType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cbt_genType.SelectedIndex == 1)
+                btn_selFile.Enabled = true;
+            else
+                btn_selFile.Enabled = false;
+
+        }
+
+        private void btn_selFile_Click(object sender, EventArgs e)
+        {
+            openFileDialog1.Filter = "(RestoreModFileContainer.xml)|RestoreModFileContainer.xml";
+            if (openFileDialog1.ShowDialog(this) == DialogResult.OK)
+            {
+                tb_prevFile.Text = openFileDialog1.FileName;
             }
         }
     }

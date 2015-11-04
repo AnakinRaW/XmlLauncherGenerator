@@ -40,6 +40,11 @@
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.label5 = new System.Windows.Forms.Label();
             this.tb_customModDir = new System.Windows.Forms.TextBox();
+            this.tb_prevFile = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.btn_selFile = new System.Windows.Forms.Button();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // label1
@@ -54,7 +59,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 223);
+            this.label2.Location = new System.Drawing.Point(12, 267);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(298, 13);
             this.label2.TabIndex = 1;
@@ -80,6 +85,7 @@
             this.cbt_genType.Name = "cbt_genType";
             this.cbt_genType.Size = new System.Drawing.Size(121, 21);
             this.cbt_genType.TabIndex = 3;
+            this.cbt_genType.SelectedIndexChanged += new System.EventHandler(this.cbt_genType_SelectedIndexChanged);
             // 
             // tb_version
             // 
@@ -106,7 +112,7 @@
             // 
             // btn_generate
             // 
-            this.btn_generate.Location = new System.Drawing.Point(132, 85);
+            this.btn_generate.Location = new System.Drawing.Point(132, 206);
             this.btn_generate.Name = "btn_generate";
             this.btn_generate.Size = new System.Drawing.Size(121, 44);
             this.btn_generate.TabIndex = 8;
@@ -127,7 +133,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(12, 138);
+            this.label5.Location = new System.Drawing.Point(12, 88);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(114, 13);
             this.label5.TabIndex = 10;
@@ -135,16 +141,60 @@
             // 
             // tb_customModDir
             // 
-            this.tb_customModDir.Location = new System.Drawing.Point(132, 135);
+            this.tb_customModDir.Location = new System.Drawing.Point(132, 85);
             this.tb_customModDir.Name = "tb_customModDir";
             this.tb_customModDir.Size = new System.Drawing.Size(100, 20);
             this.tb_customModDir.TabIndex = 11;
+            // 
+            // tb_prevFile
+            // 
+            this.tb_prevFile.Location = new System.Drawing.Point(15, 124);
+            this.tb_prevFile.Name = "tb_prevFile";
+            this.tb_prevFile.Size = new System.Drawing.Size(309, 20);
+            this.tb_prevFile.TabIndex = 13;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(12, 108);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(182, 13);
+            this.label6.TabIndex = 12;
+            this.label6.Text = "Restore XML of the previous version:";
+            // 
+            // btn_selFile
+            // 
+            this.btn_selFile.Location = new System.Drawing.Point(330, 122);
+            this.btn_selFile.Name = "btn_selFile";
+            this.btn_selFile.Size = new System.Drawing.Size(75, 23);
+            this.btn_selFile.TabIndex = 14;
+            this.btn_selFile.Text = "Select";
+            this.btn_selFile.UseVisualStyleBackColor = true;
+            this.btn_selFile.Click += new System.EventHandler(this.btn_selFile_Click);
+            // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.FileName = "openFileDialog1";
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(15, 150);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(313, 17);
+            this.checkBox1.TabIndex = 15;
+            this.checkBox1.Text = "Copy all new Files to Outputdir (new Directory will be created)";
+            this.checkBox1.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(442, 245);
+            this.ClientSize = new System.Drawing.Size(442, 289);
+            this.Controls.Add(this.checkBox1);
+            this.Controls.Add(this.btn_selFile);
+            this.Controls.Add(this.tb_prevFile);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.tb_customModDir);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.btn_selDir);
@@ -177,6 +227,11 @@
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox tb_customModDir;
+        private System.Windows.Forms.TextBox tb_prevFile;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Button btn_selFile;
+        private System.Windows.Forms.OpenFileDialog openFileDialog1;
+        private System.Windows.Forms.CheckBox checkBox1;
     }
 }
 
