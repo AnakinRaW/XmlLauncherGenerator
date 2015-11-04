@@ -135,6 +135,7 @@ namespace RawXmlLauncherGenerator
                         }
                         catch (Exception e)
                         {
+                            MessageBox.Show("File " + newFile.Name + " could not be added.\r\n" + e.Message);
                         }
                     }
 
