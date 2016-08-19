@@ -203,7 +203,7 @@ namespace RawXmlLauncherGenerator
         }
 
 
-        private void AddFolder(List<FileContainerFolder> list, string directory, TargetType type, string cutoffPath = null)
+        private static void AddFolder(List<FileContainerFolder> list, string directory, TargetType type, string cutoffPath = null)
         {
             var folderItem = new FileContainerFolder
             {
@@ -216,7 +216,7 @@ namespace RawXmlLauncherGenerator
 
         }
 
-        private void AddFile(List<FileContainerFile> files, string s, TargetType type, string cutoffPath = null)
+        private void AddFile(ICollection<FileContainerFile> files, string s, TargetType type, string cutoffPath = null)
         {
             var fileItem = new FileContainerFile
             {
@@ -224,7 +224,7 @@ namespace RawXmlLauncherGenerator
                 Hash = Hash.FileHash.CheckHashFile(s),
                 TargetPath = s.Replace(Directory.GetCurrentDirectory() + cutoffPath, string.Empty) + @"\",
                 TargetType = type,
-                SourcePath = @"\" + tb_version.Text + s.Replace(Directory.GetCurrentDirectory() + cutoffPath, string.Empty) + @"\",
+                SourcePath = @"\" + tb_version.Text + @"\"  + type + s.Replace(Directory.GetCurrentDirectory() + cutoffPath, string.Empty) + @"\",
             };
             files.Add(fileItem);
         }
@@ -239,11 +239,7 @@ namespace RawXmlLauncherGenerator
 
         private void cbt_genType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cbt_genType.SelectedIndex == 1)
-                btn_selFile.Enabled = true;
-            else
-                btn_selFile.Enabled = false;
-
+            btn_selFile.Enabled = cbt_genType.SelectedIndex == 1;
         }
 
         private void btn_selFile_Click(object sender, EventArgs e)
