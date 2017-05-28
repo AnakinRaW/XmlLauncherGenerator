@@ -222,9 +222,9 @@ namespace RawXmlLauncherGenerator
             {
                 Name = Path.GetFileName(s),
                 Hash = Hash.FileHash.CheckHashFile(s),
-                TargetPath = s.Replace(Directory.GetCurrentDirectory() + cutoffPath, string.Empty) + @"\",
+                TargetPath = s.Replace(Directory.GetCurrentDirectory() + cutoffPath, string.Empty),
                 TargetType = type,
-                SourcePath = @"\" + tb_version.Text + @"\"  + type + s.Replace(Directory.GetCurrentDirectory() + cutoffPath, string.Empty) + @"\",
+                SourcePath = @"\" + tb_version.Text + @"\"  + type + s.Replace(Directory.GetCurrentDirectory() + cutoffPath, string.Empty)
             };
             files.Add(fileItem);
         }
