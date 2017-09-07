@@ -20,7 +20,7 @@ namespace RawXmlLauncherGenerator
         private void btn_generate_Click(object sender, EventArgs e)
         {
             MessageBox.Show(
-                "Please make sure the program in in FoC root and foc is installed in the same version you typed in",
+                "Please make sure the program in inside the Gits repository root folder of the branch you want to create the XML files for.",
                 "XML Generator", MessageBoxButtons.OK, MessageBoxIcon.Information);
             if (string.IsNullOrEmpty(tb_version.Text))
             {
@@ -37,7 +37,7 @@ namespace RawXmlLauncherGenerator
             if (!PreCheckCurrentDir())
             {
                 MessageBox.Show(
-                    "Please make sure the program in in FoC root and foc is installed in the same version you typed in",
+                    "Please make sure the program in inside the Gits repository root folder of the branch you want to create the XML files for.",
                     "XML Generator", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
@@ -49,32 +49,38 @@ namespace RawXmlLauncherGenerator
 
         private void GenerteRestoreXml()
         {
-            tb_customModDir.Text = "Republic_at_War";
+            if (string.IsNullOrEmpty(tb_modDir.Text))
+            {
+                MessageBox.Show("Please specify a mods directory");
+                return;
+            }
             var fileContainer = new FileContainer
             {
                 Version = tb_version.Text,
                 Files = new List<FileContainerFile>()
             };
+            if (checkBox2.Checked)
+            {
+                if (Directory.Exists(Directory.GetCurrentDirectory() + @"\Data\XML"))
+                    Parallel.ForEach(
+                        Directory.EnumerateFiles(Directory.GetCurrentDirectory() + @"\Data\XML", "*",
+                            SearchOption.AllDirectories),
+                        x => AddFile(fileContainer.Files, x, TargetType.Ai, "\\"));
+                if (Directory.Exists(Directory.GetCurrentDirectory() + @"\Data\Scripts"))
+                    Parallel.ForEach(
+                        Directory.EnumerateFiles(Directory.GetCurrentDirectory() + @"\Data\Scripts", "*",
+                            SearchOption.AllDirectories),
+                        x => AddFile(fileContainer.Files, x, TargetType.Ai, "\\"));
+                if (Directory.Exists(Directory.GetCurrentDirectory() + @"\Data\CustomMaps"))
+                    Parallel.ForEach(
+                        Directory.EnumerateFiles(Directory.GetCurrentDirectory() + @"\Data\CustomMaps", "*",
+                            SearchOption.AllDirectories),
+                        x => AddFile(fileContainer.Files, x, TargetType.Ai, "\\"));
+            }  
             Parallel.ForEach(
-                Directory.EnumerateFiles(Directory.GetCurrentDirectory() + @"\Data\XML", "*", SearchOption.AllDirectories),
-                x => AddFile(fileContainer.Files, x, TargetType.Ai));
-            Parallel.ForEach(
-                Directory.EnumerateFiles(Directory.GetCurrentDirectory() + @"\Data\Scripts", "*", SearchOption.AllDirectories),
-                x => AddFile(fileContainer.Files, x, TargetType.Ai));
-            Parallel.ForEach(
-                Directory.EnumerateFiles(Directory.GetCurrentDirectory() + @"\Data\CustomMaps", "*", SearchOption.AllDirectories),
-                x => AddFile(fileContainer.Files, x, TargetType.Ai));
-
-            if (string.IsNullOrEmpty(tb_customModDir.Text))
-                Parallel.ForEach(
-                    Directory.EnumerateFiles(Directory.GetCurrentDirectory() + @"\Mods\Republic_at_War", "*",
-                        SearchOption.AllDirectories),
-                    x => AddFile(fileContainer.Files, x, TargetType.Mod, @"\Mods\Republic_at_War"));
-            else
-                Parallel.ForEach(
-                    Directory.EnumerateFiles(Directory.GetCurrentDirectory() + @"\Mods\" + tb_customModDir.Text, "*",
-                        SearchOption.AllDirectories),
-                    x => AddFile(fileContainer.Files, x, TargetType.Mod, @"\Mods\" + tb_customModDir.Text));
+                Directory.EnumerateFiles(Directory.GetCurrentDirectory() + @"\Mods\" + tb_modDir.Text, "*",
+                    SearchOption.AllDirectories),
+                x => AddFile(fileContainer.Files, x, TargetType.Mod, @"\Mods\" + tb_modDir.Text + "\\"));
 
             //Now replace dublicate files from previous versions
             if (File.Exists(tb_prevFile.Text))
@@ -109,10 +115,10 @@ namespace RawXmlLauncherGenerator
                             if (newFile.TargetType == TargetType.Ai)
                             {
                                 var i = Directory.GetCurrentDirectory();
-                                var s = i + newFile.TargetPath;
+                                var s = Path.Combine(i,newFile.TargetPath);
                                 s = s.TrimEnd('\\');
                                 s = Path.GetFullPath(s);
-                                var t = tb_outDir.Text + "\\New Files\\AI" + newFile.TargetPath;
+                                var t = tb_outDir.Text + "\\New Files\\AI" + "\\" + newFile.TargetPath;
                                 t = t.TrimEnd('\\');
                                 if (!Directory.Exists(new FileInfo(t).DirectoryName))
                                     Directory.CreateDirectory(new FileInfo(t).DirectoryName);
@@ -122,10 +128,10 @@ namespace RawXmlLauncherGenerator
 
                             else
                             {
-                                var s = Directory.GetCurrentDirectory() + @"\Mods\" + tb_customModDir.Text + newFile.TargetPath;
+                                var s = Directory.GetCurrentDirectory() + @"\Mods\" + tb_modDir.Text + "\\" +  newFile.TargetPath;
                                 s = s.TrimEnd('\\');
                                 s = Path.GetFullPath(s);
-                                var t = tb_outDir.Text + "\\New Files" + newFile.TargetPath;
+                                var t = tb_outDir.Text + "\\New Files" + "\\" + newFile.TargetPath;
                                 t = t.TrimEnd('\\');
                                 if (!Directory.Exists(new FileInfo(t).DirectoryName))
                                     Directory.CreateDirectory(new FileInfo(t).DirectoryName);
@@ -149,11 +155,9 @@ namespace RawXmlLauncherGenerator
 
         private bool PreCheckCurrentDir()
         {
-            if (!File.Exists(Directory.GetCurrentDirectory() + @"\swfoc.exe"))
-                return false;
             if (!Directory.Exists(Directory.GetCurrentDirectory() + @"\Mods\Republic_at_War\Data"))
                 return false;
-            if (!Directory.Exists(Directory.GetCurrentDirectory() + @"\Data\XML\"))
+            if (!Directory.Exists(Directory.GetCurrentDirectory() + @"\Data\"))
                 return false;
             return true;
         }
@@ -161,41 +165,51 @@ namespace RawXmlLauncherGenerator
 
         private void GenerateCheckXml()
         {
+
+            if (string.IsNullOrEmpty(tb_modDir.Text))
+            {
+                MessageBox.Show("Please specify a mods directory");
+                return;
+            }
+
             var fileContainer = new FileContainer
             {
                 Version = tb_version.Text,
                 Folders = new List<FileContainerFolder>()
             };
 
-            AddFolder(fileContainer.Folders, Directory.GetCurrentDirectory() + @"\Data\XML", TargetType.Ai);
-            Parallel.ForEach(
-                Directory.EnumerateDirectories(Directory.GetCurrentDirectory() + @"\Data\XML", "*",
-                    SearchOption.AllDirectories), x => AddFolder(fileContainer.Folders, x, TargetType.Ai));
-
-            AddFolder(fileContainer.Folders, Directory.GetCurrentDirectory() + @"\Data\Scripts", TargetType.Ai);
-            Parallel.ForEach(
-                Directory.EnumerateDirectories(Directory.GetCurrentDirectory() + @"\Data\Scripts", "*",
-                    SearchOption.AllDirectories), x => AddFolder(fileContainer.Folders, x, TargetType.Ai));
-
-            AddFolder(fileContainer.Folders, Directory.GetCurrentDirectory() + @"\Data\CustomMaps", TargetType.Ai);
-            Parallel.ForEach(
-                Directory.EnumerateDirectories(Directory.GetCurrentDirectory() + @"\Data\CustomMaps", "*",
-                    SearchOption.AllDirectories), x => AddFolder(fileContainer.Folders, x, TargetType.Ai));
-
-
-            if (string.IsNullOrEmpty(tb_customModDir.Text))
+            if (checkBox2.Checked)
             {
-                AddFolder(fileContainer.Folders, Directory.GetCurrentDirectory() + @"\Mods\Republic_At_War\", TargetType.Mod, @"\Mods\Republic_At_War");
-                Parallel.ForEach(
-                    Directory.EnumerateDirectories(Directory.GetCurrentDirectory() + @"\Mods\Republic_At_War\", "*",
-                        SearchOption.AllDirectories), x => AddFolder(fileContainer.Folders, x, TargetType.Mod, @"\Mods\Republic_At_War"));
-            }
-            else
-            {
-                AddFolder(fileContainer.Folders, Directory.GetCurrentDirectory() + @"\Mods\" + tb_customModDir.Text, TargetType.Mod, @"\Mods\" + tb_customModDir.Text);
-                Parallel.ForEach(
-                    Directory.EnumerateDirectories(Directory.GetCurrentDirectory() + @"\Mods\" + tb_customModDir.Text, "*", SearchOption.AllDirectories), x => AddFolder(fileContainer.Folders, x, TargetType.Mod, @"\Mods\" + tb_customModDir.Text));
-            }
+                if (Directory.Exists(Directory.GetCurrentDirectory() + @"\Data\XML"))
+                {
+                    AddFolder(fileContainer.Folders, Directory.GetCurrentDirectory() + @"\Data\XML", TargetType.Ai);
+                    Parallel.ForEach(
+                        Directory.EnumerateDirectories(Directory.GetCurrentDirectory() + @"\Data\XML", "*",
+                            SearchOption.AllDirectories), x => AddFolder(fileContainer.Folders, x, TargetType.Ai));
+                }
+
+                if (Directory.Exists(Directory.GetCurrentDirectory() + @"\Data\Scripts"))
+                {
+                    AddFolder(fileContainer.Folders, Directory.GetCurrentDirectory() + @"\Data\Scripts", TargetType.Ai);
+                    Parallel.ForEach(
+                        Directory.EnumerateDirectories(Directory.GetCurrentDirectory() + @"\Data\Scripts", "*",
+                            SearchOption.AllDirectories), x => AddFolder(fileContainer.Folders, x, TargetType.Ai));
+                }
+
+                if (Directory.Exists(Directory.GetCurrentDirectory() + @"\Data\CustomMaps"))
+                {
+                    AddFolder(fileContainer.Folders, Directory.GetCurrentDirectory() + @"\Data\CustomMaps", TargetType.Ai);
+                    Parallel.ForEach(
+                        Directory.EnumerateDirectories(Directory.GetCurrentDirectory() + @"\Data\CustomMaps", "*",
+                            SearchOption.AllDirectories), x => AddFolder(fileContainer.Folders, x, TargetType.Ai));
+                }
+            }           
+            AddFolder(fileContainer.Folders, Directory.GetCurrentDirectory() + @"\Mods\" + tb_modDir.Text,
+                TargetType.Mod, @"\Mods\" + tb_modDir.Text);
+            Parallel.ForEach(
+                Directory.EnumerateDirectories(Directory.GetCurrentDirectory() + @"\Mods\" + tb_modDir.Text, "*",
+                    SearchOption.AllDirectories),
+                x => AddFolder(fileContainer.Folders, x, TargetType.Mod, @"\Mods\" + tb_modDir.Text));
 
             var xmlString = fileContainer.Serialize();
             var doc = XDocument.Parse(xmlString);
@@ -224,7 +238,7 @@ namespace RawXmlLauncherGenerator
                 Hash = Hash.FileHash.CheckHashFile(s),
                 TargetPath = s.Replace(Directory.GetCurrentDirectory() + cutoffPath, string.Empty),
                 TargetType = type,
-                SourcePath = @"\" + tb_version.Text + @"\"  + type + s.Replace(Directory.GetCurrentDirectory() + cutoffPath, string.Empty)
+                SourcePath = tb_version.Text + s.Replace(Directory.GetCurrentDirectory(), string.Empty)
             };
             files.Add(fileItem);
         }
@@ -248,6 +262,16 @@ namespace RawXmlLauncherGenerator
             if (openFileDialog1.ShowDialog(this) == DialogResult.OK)
             {
                 tb_prevFile.Text = openFileDialog1.FileName;
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            var loc = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            folderBrowserDialog2.SelectedPath = Path.GetDirectoryName(loc);
+            if (folderBrowserDialog2.ShowDialog(this) == DialogResult.OK)
+            {
+                tb_modDir.Text = new DirectoryInfo(folderBrowserDialog2.SelectedPath).Name;
             }
         }
     }
